@@ -2,6 +2,6 @@
 
 to run this app run 
 
-'''
+```
 python3 run.py
-'''
+```
