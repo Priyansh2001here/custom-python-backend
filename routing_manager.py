@@ -1,5 +1,6 @@
 from urls import URLS
 from exceptions import InvalidMethod
+from pprint import pprint
 
 VALID_METHODS = frozenset(('GET', 'POST'))
 
@@ -7,6 +8,8 @@ VALID_METHODS = frozenset(('GET', 'POST'))
 def app(environ, start_response):
     path = environ.get('PATH_INFO')
     method = environ.get('REQUEST_METHOD')
+
+    # pprint(environ)
 
     try:
         obj = URLS[path]

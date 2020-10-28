@@ -1,6 +1,11 @@
 from typing import Dict
+from cgi import escape, FieldStorage
+import cgi
+from urllib.parse import parse_qs
+from pprint import pprint
 
 from response import Response
+
 URLS: Dict[str, 'Path'] = {}
 
 
@@ -13,34 +18,38 @@ class Path(object):
         URLS[self.url] = self
 
     def as_view(self, request, response):
-        x = self.view(request, response)
+        method = request.get('REQUEST_METHOD')
+        x = self.view(request, response, method=method)
         return x
 
 
-def my_view(req, res):
-    # return Response(data="<h1>Heading {{name}}</h1>", context={'name': 'hehe'}).html_response()
-
-    return Response(template_name='index.html', context={'name': 'hehe'}).from_template()
-
-
-def shivank(req, res):
-    return Response(template_name='hello.html').plain_response()
-
-    # return Response(data="<h1>Heading {{name}}</h1>").plain_response()
-
-
-def shivank_json(req, res):
+def my_json_test(environ, res, *args, **kwargs):
     data = {
-        'shivank_is': 'jod',
-        'priyansh_is': 'jod'
+        "id": "0001",
+        "type": "donut",
+        "name": "Cake",
+        "ppu": 0.55
     }
 
-    return Response(data=data).to_json()
+    if kwargs.get('method') == 'POST':
+
+        post_env = environ.copy()
+        post_env['QUERY_STRING'] = ''
+        post = cgi.FieldStorage(
+            fp=environ['wsgi.input'],
+            environ=post_env,
+            keep_blank_values=True
+        )
+        print(post['name'].value)
+        # word = post['word']
+        # print('word is {}'.format(word.value))
+
+        return Response(data=data).to_json()
+    else:
+        return Response(data='404').html_response()
 
 
-Path('/', my_view)
-Path('/shivank', shivank)
-Path('/shivank-json', shivank_json)
+Path('/', my_json_test)
 
 '''
 FileNotFoundError'''
